@@ -6,12 +6,12 @@
 int NumOfIncrease(const std::vector<int> &measurement, int windowSize = 1)
 {
     int increases = 0;
-    int prevWindow = std::accumulate(measurement.begin(), measurement.begin() + windowSize, 0);
+    int prevWindow;
     int currWindow;
-    for (int i = windowSize - 1; i < ((measurement.size() - windowSize) + 1); i++)
+    for (int i = 0; i < ((measurement.size() - windowSize) + 1); i++)
     {
         currWindow = std::accumulate(measurement.begin() + i, measurement.begin() + i + windowSize, 0);
-        if (currWindow > prevWindow)
+        if (i != 0 && currWindow > prevWindow)
         {
             increases++;
         }
