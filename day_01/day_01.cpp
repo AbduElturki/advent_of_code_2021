@@ -1,21 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <numeric>
 
 int NumOfIncrease(const std::vector<int> &measurement, int windowSize = 1)
 {
     int increases = 0;
-    int prevWindow;
-    int currWindow;
-    for (int i = 0; i < ((measurement.size() - windowSize) + 1); i++)
+    for (int i = windowSize; i < measurement.size(); i++)
     {
-        currWindow = std::accumulate(measurement.begin() + i, measurement.begin() + i + windowSize, 0);
-        if (i != 0 && currWindow > prevWindow)
+        // Since we only care about increases of sliding window, we can ignore the inbetween values.
+        if (measurement[i] > measurement[i - windowSize])
         {
             increases++;
         }
-        prevWindow = currWindow;
     }
     return increases;
 }
