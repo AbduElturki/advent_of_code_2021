@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 
-char BoyerMoore(const std::vector<int>::iterator start, const std::vector<int>::iterator end, int position)
+bool BoyerMoore(const std::vector<int>::iterator start, const std::vector<int>::iterator end, int position)
 {
     int curr_majority;
     int curr_count = 0;
@@ -22,25 +22,25 @@ char BoyerMoore(const std::vector<int>::iterator start, const std::vector<int>::
     return curr_count > 0 ? curr_majority : 1;
 }
 
-int getGammaValue(const std::vector<int>::iterator start, std::vector<int>::iterator end, int bit_width = 12)
+int getGammaValue(const std::vector<int>::iterator start, const std::vector<int>::iterator end, const int bit_width = 12)
 {
     int gamma = 0;
     for (int i = 0; i < bit_width; i++)
     {
-        char curr_majority = BoyerMoore(start, end, i);
+        bool curr_majority = BoyerMoore(start, end, i);
         gamma |= curr_majority << i;
     }
     return gamma;
 }
 
-int elimination(std::vector<int> power, bool least_common = false, int bit_width = 12)
+int elimination(std::vector<int> power, const bool least_common = false, const int bit_width = 12)
 {
     int curr_bit = bit_width - 1;
     std::vector<int>::iterator pstart = power.begin();
     std::vector<int>::iterator pend = power.end();
     while ((pend - pstart) > 1)
     {
-        char match = least_common ? ~BoyerMoore(pstart, pend, curr_bit) & 1 : BoyerMoore(pstart, pend, curr_bit);
+        char match = least_common ? !BoyerMoore(pstart, pend, curr_bit) : BoyerMoore(pstart, pend, curr_bit);
         pend = std::remove_if(pstart, pend, [&match, &curr_bit](int curr_power)
                               { return ((curr_power >> curr_bit) & 1) != match; });
         curr_bit--;
