@@ -4,9 +4,7 @@
 #include <sstream>
 #include <string>
 #include <map>
-#include <unordered_set>
 #include <math.h>
-#include <numeric>
 
 class Card
 {
