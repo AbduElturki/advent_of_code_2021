@@ -11,7 +11,7 @@ uint64_t simulate(std::vector<uint64_t> timers, int days)
     while (days-- > 0)
     {
         uint64_t reproduce = timers[0];
-        std::rotate(timers.begin(), timers.begin() + 1, timers.end());
+        std::rotate(timers.begin(), timers.begin() + 4, timers.end());
 
         timers[6] += reproduce;
     }
