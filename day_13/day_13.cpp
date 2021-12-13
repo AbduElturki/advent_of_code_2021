@@ -1,70 +1,65 @@
 #include <iostream>
 #include <fstream>
-#include <unordered_set>
 #include <queue>
 #include <string>
 
-struct UIntPairHasher
-{
-    size_t operator()(const std::pair<uint, uint> &s) const
-    {
-        return std::hash<uint>()(s.first) ^ (std::hash<uint>()(s.second) << 1);
-    }
-};
-
 class Origami
 {
-    std::unordered_set<std::pair<uint, uint>, UIntPairHasher> dots;
     std::queue<std::pair<char, uint>> folds;
-
-    uint max_x = 0;
-    uint max_y = 0;
+    std::vector<std::string> paper;
+    uint num_dots = 0;
 
     void foldByX(uint along)
     {
-        std::unordered_set<std::pair<uint, uint>, UIntPairHasher> new_dots;
-        uint difference;
-        for (const auto &[x, y] : dots)
+        int difference;
+        for (size_t y = 0; y < paper.size(); ++y)
         {
-            if (x < along)
-            {
-                new_dots.insert({x, y});
-            }
-            else
+            for (size_t x = along + 1; x < paper[y].size(); ++x)
             {
                 difference = x - along;
-                new_dots.insert({along - difference, y});
+                if (paper[y][x] == '#')
+                {
+                    if (paper[y][along - difference] == '#')
+                        --num_dots;
+                    else
+                        paper[y][along - difference] = '#';
+                }
             }
+            paper[y] = paper[y].substr(0, along);
         }
-
-        max_x = along - 1;
-        dots = new_dots;
     }
 
     void foldByY(uint along)
     {
-        std::unordered_set<std::pair<uint, uint>, UIntPairHasher> new_dots;
-        uint difference;
-        for (const auto &[x, y] : dots)
+        int difference;
+        for (size_t y = along + 1; y < paper.size(); ++y)
         {
-            if (y < along)
+            difference = y - along;
+            for (size_t x = 0; x < paper[x].size(); ++x)
             {
-                new_dots.insert({x, y});
-            }
-            else
-            {
-                difference = y - along;
-                new_dots.insert({x, along - difference});
+                if (paper[y][x] == '#')
+                {
+                    if (paper[along - difference][x] == '#')
+                        --num_dots;
+                    else
+                        paper[along - difference][x] = '#';
+                }
             }
         }
-
-        max_y = along - 1;
-        dots = new_dots;
+        paper.resize(along);
     }
 
 public:
-    Origami(std::unordered_set<std::pair<uint, uint>, UIntPairHasher> dots, std::queue<std::pair<char, uint>> folds, uint max_x, uint max_y)
-        : dots(dots), folds(folds), max_x(max_x), max_y(max_y) {}
+    Origami(std::vector<std::pair<uint, uint>> dots_locations, std::queue<std::pair<char, uint>> folds, uint max_x, uint max_y)
+        : folds(folds)
+    {
+        paper = std::vector<std::string>(max_y + 1, std::string(max_x + 1, ' '));
+        for (auto [x, y] : dots_locations)
+        {
+            paper[y][x] = '#';
+            ++num_dots;
+        }
+    }
 
     void fold()
     {
@@ -91,14 +86,10 @@ public:
             fold();
     }
 
-    size_t size() { return dots.size(); }
+    int getNumOfDots() { return num_dots; }
 
     void print() const
     {
-        std::vector<std::string> paper(max_y + 1, std::string(max_x + 1, ' '));
-        for (const auto &[x, y] : dots)
-            paper[y][x] = '#';
-
         for (const std::string &line : paper)
         {
             std::cout << line << "\n";
@@ -115,7 +106,7 @@ int main()
 
     uint x, y;
     uint max_x = 0, max_y = 0;
-    std::unordered_set<std::pair<uint, uint>, UIntPairHasher> dots;
+    std::vector<std::pair<uint, uint>> dots_location;
     while (getline(input, line))
     {
         if (line.size() == 0)
@@ -126,7 +117,7 @@ int main()
 
         max_x = x > max_x ? x : max_x;
         max_y = y > max_y ? y : max_y;
-        dots.insert({x, y});
+        dots_location.push_back({x, y});
     }
 
     char fold;
@@ -141,10 +132,10 @@ int main()
 
     input.close();
 
-    Origami origami(dots, folds, max_x, max_y);
+    Origami origami(dots_location, folds, max_x, max_y);
 
     origami.fold();
-    std::cout << "Part 1:\t" << origami.size() << "\nPart 2:" << std::endl;
+    std::cout << "Part 1:\t" << origami.getNumOfDots() << "\nPart 2:" << std::endl;
 
     origami.foldAll();
     origami.print();
